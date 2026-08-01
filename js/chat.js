@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AI MATCHMAKER CHAT - STRICT GENRE AND PREFERENCE ENFORCEMENT
+   AI MATCHMAKER CHAT - ABSOLUTE HARD FILTERING FOR GENRES AND AGE GROUPS
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -140,13 +140,13 @@ document.addEventListener('DOMContentLoaded', () => {
       query: customTropesInput ? customTropesInput.value.trim() : ''
     };
 
-    // Strict recommendation matching
+    // Absolute Hard Recommendation Matching
     let books = window.bookRecommender.getRecommendations(preferences, 4);
 
-    // If local pool doesn't have 4 exact genre/age matches, query Google Books API targeting that EXACT genre
+    // If local pool doesn't have 4 matches, fetch live Google Books API targeting EXACT genre & ageGroup
     if (books.length < 4 || isMoreRequest) {
       const queryTerm = preferences.query || (preferences.genres.join(' ') + ' ' + preferences.tone);
-      const apiBooks = await window.bookRecommender.fetchLiveGoogleBooks(queryTerm, selectedGenres);
+      const apiBooks = await window.bookRecommender.fetchLiveGoogleBooks(queryTerm, selectedGenres, selectedAgeGroup);
       if (apiBooks.length > 0) {
         const existingIds = new Set(books.map(b => b.id));
         const filteredApi = apiBooks.filter(b => !existingIds.has(b.id));
@@ -154,10 +154,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    const genreLabel = selectedGenres.length > 0 ? selectedGenres.join(' & ') : 'your chosen';
+    const genreLabel = selectedGenres.length > 0 ? selectedGenres.join(' & ') : 'matching';
+    const ageLabel = selectedAgeGroup ? ` (${selectedAgeGroup.toUpperCase()})` : '';
+
     const responseIntro = isMoreRequest ? 
-      `Here are **4 MORE ${genreLabel.toUpperCase()} book recommendations** strictly matching your preferences! 🎲` : 
-      `Here are **${books.length} ${genreLabel.toUpperCase()} recommendations** tailored to your preferences! ✨`;
+      `Here are **4 MORE ${genreLabel.toUpperCase()}${ageLabel} books** strictly matching your criteria! 🎲` : 
+      `Here are **${books.length} ${genreLabel.toUpperCase()}${ageLabel} recommendations** tailored specifically to your request! ✨`;
 
     addBotMessage(responseIntro);
 
