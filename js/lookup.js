@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BOOK LOOKUP & UNIVERSAL SEARCH ENGINE (ANY BOOK IN THE WORLD)
+   BOOK LOOKUP & UNIVERSAL SEARCH ENGINE (MULTI-STRATEGY FAILSAFE)
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,15 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
     debounceTimer = setTimeout(() => {
       currentStartIndex = 0;
       performUniversalBookLookup(false);
-    }, 300);
+    }, 250);
   });
 
-  // Universal Book Search Execution
+  // Universal Book Search Execution with Multi-Strategy Fail-safe
   async function performUniversalBookLookup(isLoadMore = false) {
-    const query = lookupInput ? lookupInput.value.trim() : '';
-    currentQuery = query;
+    const rawQuery = lookupInput ? lookupInput.value.trim() : '';
+    currentQuery = rawQuery;
 
-    if (!query) {
+    if (!rawQuery) {
       renderDefaultPopularBooks();
       return;
     }
@@ -37,75 +37,46 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!isLoadMore) {
       resultsGrid.innerHTML = `
         <div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">
-          <h3>🔍 Searching global book library for "${escapeHTML(query)}"...</h3>
+          <h3>🔍 Searching global book database for "${escapeHTML(rawQuery)}"...</h3>
         </div>
       `;
     }
 
-    // 1. Search Local Database
-    const qLower = query.toLowerCase();
-    const localMatches = BOOKS_DATABASE.filter(b => 
-      b.title.toLowerCase().includes(qLower) || 
-      b.author.toLowerCase().includes(qLower) ||
-      b.synopsis.toLowerCase().includes(qLower) ||
-      b.tropes.some(t => t.toLowerCase().includes(qLower))
-    );
+    // 1. Search Local Database with Fuzzy Substring Matching
+    const qClean = rawQuery.toLowerCase().replace(/[^a-z0-9\s]/gi, '');
+    const localMatches = BOOKS_DATABASE.filter(b => {
+      const titleClean = b.title.toLowerCase().replace(/[^a-z0-9\s]/gi, '');
+      const authorClean = b.author.toLowerCase().replace(/[^a-z0-9\s]/gi, '');
+      return titleClean.includes(qClean) || authorClean.includes(qClean) || b.synopsis.toLowerCase().includes(qClean);
+    });
 
-    // 2. Fetch Live Google Books API (up to 30 books per request!)
+    // 2. Multi-Strategy Google Books API Query
     let apiMatches = [];
     try {
-      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&startIndex=${currentStartIndex}&maxResults=30`;
-      const response = await fetch(url);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.items) {
-          apiMatches = data.items.map(item => {
-            const info = item.volumeInfo || {};
-            const sale = item.saleInfo || {};
+      // Primary search query
+      apiMatches = await fetchGoogleBooksAPI(rawQuery, currentStartIndex);
 
-            const coverImg = info.imageLinks ? 
-              (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail || info.imageLinks.medium) : 
-              'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
+      // Fallback 1: If 0 results, try intitle search
+      if (apiMatches.length === 0) {
+        apiMatches = await fetchGoogleBooksAPI(`intitle:${rawQuery}`, currentStartIndex);
+      }
 
-            const price = sale && sale.retailPrice ? 
-              `$${sale.retailPrice.amount}` : 
-              '$13.99';
-
-            return {
-              id: item.id || `google-${Math.random()}`,
-              title: info.title || 'Unknown Title',
-              author: info.authors ? info.authors.join(', ') : 'Unknown Author',
-              publisher: info.publisher || 'Independent Publisher',
-              publishedYear: info.publishedDate ? info.publishedDate.substring(0, 4) : '2022',
-              pageCount: info.pageCount || 320,
-              cover: coverImg.replace('http://', 'https://'),
-              genres: info.categories ? info.categories : ['General Fiction'],
-              rating: info.averageRating || (4.4 + (Math.random() * 0.5)).toFixed(1),
-              reviewsCount: info.ratingsCount ? info.ratingsCount.toLocaleString() : `${Math.floor(Math.random() * 2500 + 300)}`,
-              price: price,
-              buyLinks: {
-                amazon: `https://www.amazon.com/s?k=${encodeURIComponent((info.title || '') + ' ' + (info.authors ? info.authors[0] : ''))}`,
-                barnes: `https://www.barnesandnoble.com/s/${encodeURIComponent(info.title || '')}`,
-                bookshop: `https://bookshop.org/search?keywords=${encodeURIComponent(info.title || '')}`
-              },
-              synopsis: info.description ? stripHTML(info.description) : 'A fascinating book discovered through global search.',
-              matchReason: 'Global library match!'
-            };
-          });
-        }
+      // Fallback 2: If still 0 results, try inauthor search
+      if (apiMatches.length === 0) {
+        apiMatches = await fetchGoogleBooksAPI(`inauthor:${rawQuery}`, currentStartIndex);
       }
     } catch (err) {
-      console.warn('Google Books API search warning:', err);
+      console.warn('Google Books API search notice:', err);
     }
 
-    // Deduplicate combined results by title
+    // Combine local & API matches without duplicates
     const seenTitles = new Set();
     const combined = [];
 
     const newCandidates = isLoadMore ? apiMatches : [...localMatches, ...apiMatches];
 
     newCandidates.forEach(book => {
-      const key = book.title.toLowerCase().trim();
+      const key = book.title.toLowerCase().replace(/[^a-z0-9]/gi, '').trim();
       if (!seenTitles.has(key)) {
         seenTitles.add(key);
         combined.push(book);
@@ -118,7 +89,50 @@ document.addEventListener('DOMContentLoaded', () => {
       currentResults = combined;
     }
 
-    renderLookupResults(currentResults, query);
+    renderLookupResults(currentResults, rawQuery);
+  }
+
+  async function fetchGoogleBooksAPI(queryStr, startIndex = 0) {
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(queryStr)}&startIndex=${startIndex}&maxResults=30`;
+    const response = await fetch(url);
+    if (!response.ok) return [];
+
+    const data = await response.json();
+    if (!data.items) return [];
+
+    return data.items.map(item => {
+      const info = item.volumeInfo || {};
+      const sale = item.saleInfo || {};
+
+      const coverImg = info.imageLinks ? 
+        (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail || info.imageLinks.medium) : 
+        'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
+
+      const price = sale && sale.retailPrice ? 
+        `$${sale.retailPrice.amount}` : 
+        '$12.99';
+
+      return {
+        id: item.id || `google-${Math.random()}`,
+        title: info.title || 'Unknown Title',
+        author: info.authors ? info.authors.join(', ') : 'Unknown Author',
+        publisher: info.publisher || 'Independent Publisher',
+        publishedYear: info.publishedDate ? info.publishedDate.substring(0, 4) : '2022',
+        pageCount: info.pageCount || 320,
+        cover: coverImg.replace('http://', 'https://'),
+        genres: info.categories ? info.categories : ['General Fiction'],
+        rating: info.averageRating || (4.4 + (Math.random() * 0.5)).toFixed(1),
+        reviewsCount: info.ratingsCount ? info.ratingsCount.toLocaleString() : `${Math.floor(Math.random() * 2500 + 300)}`,
+        price: price,
+        buyLinks: {
+          amazon: `https://www.amazon.com/s?k=${encodeURIComponent((info.title || '') + ' ' + (info.authors ? info.authors[0] : ''))}`,
+          barnes: `https://www.barnesandnoble.com/s/${encodeURIComponent(info.title || '')}`,
+          bookshop: `https://bookshop.org/search?keywords=${encodeURIComponent(info.title || '')}`
+        },
+        synopsis: info.description ? stripHTML(info.description) : 'A fascinating book discovered through global search.',
+        matchReason: 'Global library match!'
+      };
+    });
   }
 
   function renderLookupResults(books, queryText = '') {
@@ -129,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
       resultsGrid.innerHTML = `
         <div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">
           <h3>No books found matching "${escapeHTML(queryText)}"</h3>
-          <p>Try searching for a book title (e.g., <em>Harry Potter</em>, <em>Dune</em>, <em>Twilight</em>) or author name (e.g., <em>Stephen King</em>, <em>Colleen Hoover</em>)!</p>
+          <p>Try searching by popular title (e.g. <em>Harry Potter</em>, <em>Percy Jackson</em>, <em>Fourth Wing</em>) or author (e.g. <em>Rick Riordan</em>, <em>Stephen King</em>)!</p>
         </div>
       `;
       return;
