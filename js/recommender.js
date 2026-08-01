@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BOOK NOOK & AI MATCHMAKER - RECOMMENDATION ENGINE
+   BOOK NOOK & AI MATCHMAKER - RECOMMENDATION ENGINE WITH SHUFFLING
    ========================================================================== */
 
 class BookRecommender {
@@ -8,7 +8,7 @@ class BookRecommender {
   }
 
   /**
-   * Filter & rank books based on user preference criteria
+   * Filter & rank books based on user preference criteria with dynamic variation
    */
   getRecommendations(preferences) {
     const { genres = [], ageGroup = '', tone = '', query = '' } = preferences;
@@ -16,7 +16,7 @@ class BookRecommender {
     let scoredBooks = this.database.map(book => {
       let score = 0;
 
-      // Match Genres (highest weight)
+      // Match Genres (weight)
       if (genres.length > 0) {
         const genreMatches = book.genres.filter(g => genres.includes(g));
         score += genreMatches.length * 25;
@@ -42,29 +42,42 @@ class BookRecommender {
         });
       }
 
+      // Add small random noise (-3 to +3) so repeated requests offer varied recommendations among top tier!
+      const randomJitter = (Math.random() - 0.5) * 6;
+      score += randomJitter;
+
       return { book, score };
     });
 
     // Sort by score descending
     scoredBooks.sort((a, b) => b.score - a.score);
 
-    // Filter top matches
-    let results = scoredBooks.map(item => item.book);
+    // Extract top candidate pool (up to 8 candidates)
+    const topCandidates = scoredBooks.slice(0, 8).map(item => item.book);
 
-    // Fallback if no exact match found
-    if (results.length === 0) {
-      results = this.database.slice(0, 3);
-    }
+    // Shuffle top candidates slightly to give variety
+    const shuffled = this.shuffleArray([...topCandidates]);
 
-    return results.slice(0, 4); // Return top 4
+    return shuffled.slice(0, 4); // Return top 4 fresh results
   }
 
   /**
-   * Async live fetch from Google Books API if needed
+   * Fisher-Yates shuffle helper
+   */
+  shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  /**
+   * Async live fetch from Google Books API for extra niche options
    */
   async fetchLiveGoogleBooks(searchTerm) {
     try {
-      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchTerm)}&maxResults=3`;
+      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchTerm)}&maxResults=4`;
       const response = await fetch(url);
       if (!response.ok) return [];
 
@@ -90,18 +103,18 @@ class BookRecommender {
           cover: coverImg.replace('http://', 'https://'),
           genres: info.categories ? info.categories : ['Fiction'],
           ageGroup: 'all',
-          rating: info.averageRating || 4.5,
-          reviewsCount: info.ratingsCount ? info.ratingsCount.toLocaleString() : '1,250',
+          rating: info.averageRating || 4.6,
+          reviewsCount: info.ratingsCount ? info.ratingsCount.toLocaleString() : '2,100',
           price: price,
-          pageCount: info.pageCount || 350,
-          publishedYear: info.publishedDate ? parseInt(info.publishedDate.substring(0, 4)) : 2022,
+          pageCount: info.pageCount || 340,
+          publishedYear: info.publishedDate ? parseInt(info.publishedDate.substring(0, 4)) : 2021,
           buyLinks: {
             amazon: `https://www.amazon.com/s?k=${encodeURIComponent(info.title + ' ' + (info.authors ? info.authors[0] : ''))}`,
             barnes: `https://www.barnesandnoble.com/s/${encodeURIComponent(info.title)}`,
             bookshop: `https://bookshop.org/search?keywords=${encodeURIComponent(info.title)}`
           },
-          synopsis: info.description || 'A fascinating book tailored to your search preferences.',
-          matchReason: 'Live API result matching your query!'
+          synopsis: info.description || 'A unique niche discovery fetched live based on your search prompt.',
+          matchReason: 'Niche live discovery matched from Google Books API!'
         };
       });
     } catch (err) {
