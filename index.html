@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Nook & AI Matchmaker - Discover Your Next Favorite Book</title>
+  <meta name="description" content="Explore rich book genres, descriptions, and chat with an intelligent AI book matchmaker tailored to your age range, favorite genres, tropes, and reading style." />
+
+  <!-- Fonts & Stylesheets -->
+  <link rel="stylesheet" href="./styles/main.css" />
+  <link rel="stylesheet" href="./styles/genres.css" />
+  <link rel="stylesheet" href="./styles/chat.css" />
+</head>
+<body>
+
+  <!-- Application Header -->
+  <header class="app-header">
+    <div class="navbar-container">
+      <div class="brand-logo" onclick="window.switchAppTab('genres')">
+        <div class="logo-icon">📚</div>
+        <div>
+          <span class="brand-title gradient-text">Book Nook</span>
+          <span class="brand-tagline">AI Matchmaker & Genre Explorer</span>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" aria-label="Main Navigation">
+        <button class="tab-btn active" data-tab="genres">
+          <span>📖</span> Book Genres
+        </button>
+        <button class="tab-btn" data-tab="chat">
+          <span>✨</span> AI Matchmaker Chat
+        </button>
+      </nav>
+
+      <div class="header-actions">
+        <button id="theme-toggle-btn" class="icon-btn" title="Toggle Theme">☀️</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="main-content">
+    
+    <!-- TAB 1: GENRES EXPLORER -->
+    <section id="tab-genres" class="tab-pane active">
+      <div class="genres-header">
+        <h1 class="genres-title">Explore <span class="gradient-text">Book Genres</span></h1>
+        <p class="genres-subtitle">Discover new reading worlds, popular tropes, sub-genres, and benchmark classics across fiction and non-fiction.</p>
+      </div>
+
+      <!-- Controls: Search & Category Filters -->
+      <div class="genres-controls">
+        <div class="search-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="genre-search-input" class="genre-search-input" placeholder="Search genres, tropes (e.g. enemies-to-lovers, magic school, cozy)..." />
+        </div>
+
+        <div class="genre-filter-pills" id="filter-pills-container">
+          <button class="filter-pill active" data-category="all">All Genres</button>
+          <button class="filter-pill" data-category="fiction">Fiction</button>
+          <button class="filter-pill" data-category="non-fiction">Non-Fiction</button>
+          <button class="filter-pill" data-category="age-group">Age Groups</button>
+        </div>
+      </div>
+
+      <!-- Genres Grid -->
+      <div class="genres-grid" id="genres-grid">
+        <!-- Rendered dynamically via js/genres.js -->
+      </div>
+    </section>
+
+    <!-- TAB 2: AI MATCHMAKER CHAT -->
+    <section id="tab-chat" class="tab-pane">
+      <div class="chat-container-layout">
+        
+        <!-- Left Preferences Collector Sidebar -->
+        <aside class="preference-sidebar">
+          <h3 class="sidebar-title"><span>🎯</span> Reading Preferences</h3>
+          
+          <!-- Age Range -->
+          <div class="pref-group">
+            <label class="pref-label">Age Range</label>
+            <div class="chip-options-grid" id="age-group-chips">
+              <span class="select-chip" data-value="children">Children (6-8)</span>
+              <span class="select-chip" data-value="middle-grade">Middle Grade (9-12)</span>
+              <span class="select-chip" data-value="ya">Young Adult (13-17)</span>
+              <span class="select-chip" data-value="new-adult">New Adult (18-25)</span>
+              <span class="select-chip" data-value="adult">Adult (26+)</span>
+            </div>
+          </div>
+
+          <!-- Preferred Genres -->
+          <div class="pref-group">
+            <label class="pref-label">Genres (Multi-select)</label>
+            <div class="chip-options-grid" id="genre-chips">
+              <span class="select-chip" data-value="fantasy">Fantasy</span>
+              <span class="select-chip" data-value="scifi">Sci-Fi</span>
+              <span class="select-chip" data-value="mystery">Mystery</span>
+              <span class="select-chip" data-value="romance">Romance</span>
+              <span class="select-chip" data-value="ya">YA</span>
+              <span class="select-chip" data-value="middle-grade">Middle Grade</span>
+              <span class="select-chip" data-value="non-fiction">Non-Fiction</span>
+              <span class="select-chip" data-value="historical-fiction">Historical</span>
+            </div>
+          </div>
+
+          <!-- Reading Tone / Vibe -->
+          <div class="pref-group">
+            <label class="pref-label">Reading Vibe & Tone</label>
+            <div class="chip-options-grid" id="tone-chips">
+              <span class="select-chip" data-value="cozy">☕ Cozy & Light</span>
+              <span class="select-chip" data-value="fast-paced">⚡ Fast-Paced</span>
+              <span class="select-chip" data-value="exciting">🔥 Action & Epic</span>
+              <span class="select-chip" data-value="dark">🕵️ Dark & Suspenseful</span>
+              <span class="select-chip" data-value="uplifting">🌟 Uplifting</span>
+            </div>
+          </div>
+
+          <!-- Specific Tropes / Keywords -->
+          <div class="pref-group">
+            <label class="pref-label">Tropes & Preferences</label>
+            <input type="text" id="custom-tropes-input" class="pref-input-text" placeholder="e.g. dragons, plot twists, under 400 pages..." />
+          </div>
+
+          <button id="generate-recs-btn" class="btn-primary" style="width:100%; justify-content:center; margin-top:0.5rem;">
+            Generate Book Matches ✨
+          </button>
+        </aside>
+
+        <!-- Right Main Chat Stream -->
+        <div class="chat-main-panel">
+          <div class="chat-header">
+            <div class="chat-bot-info">
+              <div class="bot-avatar">🤖</div>
+              <div>
+                <h4 style="font-size:1.05rem;">Book Nook AI Assistant</h4>
+                <div class="bot-status"><span class="status-dot"></span> Online & ready to recommend</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Stream Area -->
+          <div class="chat-stream" id="chat-stream">
+            <div class="message-bubble bot">
+              <div class="message-avatar">📚</div>
+              <div class="message-content">
+                Welcome to <strong>Book Nook AI Matchmaker</strong>! 👋<br/><br/>
+                Tell me what genre you like, your target age range, or any favorite tropes (e.g. <em>"Fast-paced YA fantasy with dragons"</em> or <em>"Cozy middle-grade mystery"</em>), and I'll generate personalized recommendations with covers, ratings, prices, and buy links!
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Input Footer -->
+          <div class="chat-input-area">
+            <input type="text" id="chat-input-field" class="chat-input-field" placeholder="Tell me what kind of book you're looking for..." />
+            <button id="send-message-btn" class="send-btn" title="Send message">➔</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- GENRE DETAILS MODAL -->
+  <div id="genre-modal-overlay" class="modal-overlay">
+    <div class="modal-container">
+      <button id="genre-modal-close-btn" class="modal-close-btn">&times;</button>
+      <div id="genre-modal-content">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOK OVERVIEW MODAL -->
+  <div id="overview-modal-overlay" class="modal-overlay">
+    <div class="modal-container" style="max-width: 850px;">
+      <button id="overview-modal-close-btn" class="modal-close-btn">&times;</button>
+      <div id="overview-modal-content">
+        <!-- Rendered dynamically via js/chat.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Footer -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <p>📚 <strong>Book Nook & AI Matchmaker</strong> &copy; 2026. Built with Vanilla Web Tech for GitHub Pages.</p>
+      <div class="footer-links">
+        <a href="#" onclick="window.switchAppTab('genres'); return false;">Genre Catalog</a>
+        <a href="#" onclick="window.switchAppTab('chat'); return false;">AI Matchmaker Chat</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="./js/data.js"></script>
+  <script src="./js/recommender.js"></script>
+  <script src="./js/genres.js"></script>
+  <script src="./js/chat.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
