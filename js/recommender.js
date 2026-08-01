@@ -79,6 +79,17 @@ class BookRecommender {
   }
 
   /**
+   * Fisher-Yates shuffle helper
+   */
+  shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  /**
    * Async live fetch from Google Books API targeting EXACT genre & search terms
    */
   async fetchLiveGoogleBooks(searchTerm, selectedGenres = [], selectedAgeGroup = '') {
@@ -98,16 +109,27 @@ class BookRecommender {
       return data.items
         .filter(item => !this.seenBookIds.has(item.id))
         .map(item => {
-          const info = item.volumeInfo;
-          const sale = item.saleInfo;
+          const info = item.volumeInfo || {};
+          const sale = item.saleInfo || {};
+          const searchInfo = item.searchInfo || {};
 
           const coverImg = info.imageLinks ? 
-            (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail) : 
+            (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail || info.imageLinks.medium) : 
             'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
 
           const price = sale && sale.retailPrice ? 
             `$${sale.retailPrice.amount}` : 
             '$12.99';
+
+          let synopsis = info.description ? this.stripHTML(info.description) : '';
+          if (!synopsis || synopsis.length < 40) {
+            if (searchInfo.textSnippet) {
+              synopsis = this.stripHTML(searchInfo.textSnippet);
+            } else {
+              const authorText = info.authors ? info.authors.join(', ') : 'renowned authors';
+              synopsis = `"${info.title}" by ${authorText} is a popular ${selectedGenres.join('/')} title. Published by ${info.publisher || 'independent publishers'} in ${info.publishedDate || 'recent years'}, offering a captivating storyline and memorable characters.`;
+            }
+          }
 
           this.seenBookIds.add(item.id);
 
@@ -128,14 +150,20 @@ class BookRecommender {
               barnes: `https://www.barnesandnoble.com/s/${encodeURIComponent(info.title)}`,
               bookshop: `https://bookshop.org/search?keywords=${encodeURIComponent(info.title)}`
             },
-            synopsis: info.description ? (info.description.substring(0, 320) + '...') : `Targeted ${selectedGenres.join(', ')} discovery fetched live.`,
-            matchReason: `Live ${selectedAgeGroup ? selectedAgeGroup.toUpperCase() + ' ' : ''}${selectedGenres.join(', ').toUpperCase()} recommendation!`
+            synopsis: synopsis,
+            matchReason: `Targeted ${selectedAgeGroup ? selectedAgeGroup.toUpperCase() + ' ' : ''}${selectedGenres.join(', ').toUpperCase()} recommendation!`
           };
         });
     } catch (err) {
       console.warn('Google Books API fetch failed, falling back to local database.', err);
       return [];
     }
+  }
+
+  stripHTML(html) {
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
   }
 }
 
