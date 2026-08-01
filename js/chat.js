@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AI MATCHMAKER CHAT & BOOK OVERVIEW LOGIC
+   AI MATCHMAKER CHAT & BOOK OVERVIEW LOGIC WITH DUPLICATE PREVENTION
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -101,8 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const userPromptText = promptSummaryParts.length > 0 ?
-      `Find me books matching: ${promptSummaryParts.join(' | ')}` :
-      "Find me your best book recommendations!";
+      `Find me fresh books matching: ${promptSummaryParts.join(' | ')}` :
+      "Find me new book recommendations!";
 
     addUserMessage(userPromptText);
 
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scrollToBottom();
   }
 
-  async function generateAndDisplayBookCards() {
+  async function generateAndDisplayBookCards(isMoreRequest = false) {
     const preferences = {
       genres: selectedGenres,
       ageGroup: selectedAgeGroup,
@@ -141,19 +141,25 @@ document.addEventListener('DOMContentLoaded', () => {
       query: customTropesInput ? customTropesInput.value.trim() : ''
     };
 
-    // Get recommendations from local DB engine
-    let books = window.bookRecommender.getRecommendations(preferences);
+    // Get recommendations excluding previously seen books
+    let books = window.bookRecommender.getRecommendations(preferences, 4);
 
-    // If local results are few, try Google Books API
-    if (books.length < 2 && (preferences.genres.length > 0 || preferences.query)) {
-      const searchTerm = preferences.genres.join(' ') + ' ' + preferences.query;
-      const apiBooks = await window.bookRecommender.fetchLiveGoogleBooks(searchTerm);
+    // If local unseen pool has fewer than 4 books, supplement with live Google Books API results!
+    if (books.length < 4 || isMoreRequest) {
+      const queryTerm = preferences.query || (preferences.genres.join(' ') + ' book ' + preferences.tone);
+      const apiBooks = await window.bookRecommender.fetchLiveGoogleBooks(queryTerm);
       if (apiBooks.length > 0) {
-        books = [...books, ...apiBooks];
+        // Merge and ensure uniqueness
+        const existingIds = new Set(books.map(b => b.id));
+        const filteredApi = apiBooks.filter(b => !existingIds.has(b.id));
+        books = [...books, ...filteredApi].slice(0, 4);
       }
     }
 
-    const responseIntro = `Here are **${books.length} curated book recommendations** hand-picked for your reading preferences! ✨`;
+    const responseIntro = isMoreRequest ? 
+      `Here are **4 MORE brand new book recommendations** for you! 🎲` : 
+      `Here are **${books.length} fresh, unseen book recommendations** picked for your preferences! ✨`;
+
     addBotMessage(responseIntro);
 
     // Render Cards in Stream
@@ -165,6 +171,25 @@ document.addEventListener('DOMContentLoaded', () => {
       recsContainer.appendChild(card);
     });
 
+    // Add "Get 4 More Recommendations" button below card batch
+    const moreBtnWrapper = document.createElement('div');
+    moreBtnWrapper.style.display = 'flex';
+    moreBtnWrapper.style.justifyContent = 'center';
+    moreBtnWrapper.style.marginTop = '0.75rem';
+
+    const moreBtn = document.createElement('button');
+    moreBtn.className = 'btn-secondary';
+    moreBtn.style.fontSize = '0.9rem';
+    moreBtn.innerHTML = '🎲 Get 4 More Different Books';
+    moreBtn.addEventListener('click', () => {
+      moreBtn.disabled = true;
+      moreBtn.innerHTML = '⏳ Finding 4 more books...';
+      generateAndDisplayBookCards(true);
+    });
+
+    moreBtnWrapper.appendChild(moreBtn);
+    recsContainer.appendChild(moreBtnWrapper);
+
     chatStream.appendChild(recsContainer);
     scrollToBottom();
   }
@@ -172,8 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function createBookCardHTML(book) {
     const card = document.createElement('div');
     card.className = 'book-recommendation-card';
-
-    const starsHTML = '★'.repeat(Math.floor(book.rating)) + (book.rating % 1 >= 0.5 ? '½' : '');
 
     card.innerHTML = `
       <div class="book-cover-wrapper">
@@ -211,12 +234,32 @@ document.addEventListener('DOMContentLoaded', () => {
       query: userQuery
     };
 
-    const books = window.bookRecommender.getRecommendations(preferences);
-    addBotMessage(`Based on your message: *"<sup>${escapeHTML(userQuery)}</sup>"*, here are my top recommended matches for you!`);
+    const books = window.bookRecommender.getRecommendations(preferences, 4);
+    addBotMessage(`Based on your message: *"<sup>${escapeHTML(userQuery)}</sup>"*, here are 4 fresh matches!`);
     
     const recsContainer = document.createElement('div');
     recsContainer.className = 'recommendations-wrapper';
     books.forEach(b => recsContainer.appendChild(createBookCardHTML(b)));
+
+    // Add "Get 4 More" button
+    const moreBtnWrapper = document.createElement('div');
+    moreBtnWrapper.style.display = 'flex';
+    moreBtnWrapper.style.justifyContent = 'center';
+    moreBtnWrapper.style.marginTop = '0.75rem';
+
+    const moreBtn = document.createElement('button');
+    moreBtn.className = 'btn-secondary';
+    moreBtn.style.fontSize = '0.9rem';
+    moreBtn.innerHTML = '🎲 Get 4 More Different Books';
+    moreBtn.addEventListener('click', () => {
+      moreBtn.disabled = true;
+      moreBtn.innerHTML = '⏳ Finding 4 more books...';
+      generateAndDisplayBookCards(true);
+    });
+
+    moreBtnWrapper.appendChild(moreBtn);
+    recsContainer.appendChild(moreBtnWrapper);
+
     chatStream.appendChild(recsContainer);
     scrollToBottom();
   }
