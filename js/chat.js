@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AI MATCHMAKER CHAT & BOOK OVERVIEW LOGIC WITH DUPLICATE PREVENTION
+   AI MATCHMAKER CHAT - STRICT GENRE AND PREFERENCE ENFORCEMENT
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chip.classList.remove('selected');
       }
     });
-    addBotMessage(`Awesome choice! I've pre-selected **${genreName}** for you. Pick an age range or type any extra vibes/tropes you'd like, then hit **Generate Book Matches**! ✨`);
+    addBotMessage(`Awesome choice! I've set your target genre to **${genreName}**! Select an age group or tone, then click **Generate Book Matches ✨**!`);
   };
 
   // Generate Recommendations Trigger
@@ -85,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
     addUserMessage(text);
     chatInput.value = '';
 
-    // Show bot typing indicator & process query
     setTimeout(() => {
       processQueryAndRespond(text);
     }, 600);
@@ -93,16 +92,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function handleRecommendationGeneration() {
     const promptSummaryParts = [];
-    if (selectedGenres.length > 0) promptSummaryParts.push(`Genres: ${selectedGenres.join(', ')}`);
-    if (selectedAgeGroup) promptSummaryParts.push(`Age Group: ${selectedAgeGroup}`);
-    if (selectedTone) promptSummaryParts.push(`Tone: ${selectedTone}`);
+    if (selectedGenres.length > 0) promptSummaryParts.push(`Genre: ${selectedGenres.join(', ').toUpperCase()}`);
+    if (selectedAgeGroup) promptSummaryParts.push(`Age Group: ${selectedAgeGroup.toUpperCase()}`);
+    if (selectedTone) promptSummaryParts.push(`Tone: ${selectedTone.toUpperCase()}`);
     if (customTropesInput && customTropesInput.value.trim()) {
       promptSummaryParts.push(`Vibes/Tropes: "${customTropesInput.value.trim()}"`);
     }
 
     const userPromptText = promptSummaryParts.length > 0 ?
-      `Find me fresh books matching: ${promptSummaryParts.join(' | ')}` :
-      "Find me new book recommendations!";
+      `Find me books strictly matching: ${promptSummaryParts.join(' | ')}` :
+      "Find me top book recommendations!";
 
     addUserMessage(userPromptText);
 
@@ -141,24 +140,24 @@ document.addEventListener('DOMContentLoaded', () => {
       query: customTropesInput ? customTropesInput.value.trim() : ''
     };
 
-    // Get recommendations excluding previously seen books
+    // Strict recommendation matching
     let books = window.bookRecommender.getRecommendations(preferences, 4);
 
-    // If local unseen pool has fewer than 4 books, supplement with live Google Books API results!
+    // If local pool doesn't have 4 exact genre/age matches, query Google Books API targeting that EXACT genre
     if (books.length < 4 || isMoreRequest) {
-      const queryTerm = preferences.query || (preferences.genres.join(' ') + ' book ' + preferences.tone);
-      const apiBooks = await window.bookRecommender.fetchLiveGoogleBooks(queryTerm);
+      const queryTerm = preferences.query || (preferences.genres.join(' ') + ' ' + preferences.tone);
+      const apiBooks = await window.bookRecommender.fetchLiveGoogleBooks(queryTerm, selectedGenres);
       if (apiBooks.length > 0) {
-        // Merge and ensure uniqueness
         const existingIds = new Set(books.map(b => b.id));
         const filteredApi = apiBooks.filter(b => !existingIds.has(b.id));
         books = [...books, ...filteredApi].slice(0, 4);
       }
     }
 
+    const genreLabel = selectedGenres.length > 0 ? selectedGenres.join(' & ') : 'your chosen';
     const responseIntro = isMoreRequest ? 
-      `Here are **4 MORE brand new book recommendations** for you! 🎲` : 
-      `Here are **${books.length} fresh, unseen book recommendations** picked for your preferences! ✨`;
+      `Here are **4 MORE ${genreLabel.toUpperCase()} book recommendations** strictly matching your preferences! 🎲` : 
+      `Here are **${books.length} ${genreLabel.toUpperCase()} recommendations** tailored to your preferences! ✨`;
 
     addBotMessage(responseIntro);
 
@@ -171,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
       recsContainer.appendChild(card);
     });
 
-    // Add "Get 4 More Recommendations" button below card batch
+    // Add "Get 4 More" button
     const moreBtnWrapper = document.createElement('div');
     moreBtnWrapper.style.display = 'flex';
     moreBtnWrapper.style.justifyContent = 'center';
@@ -180,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const moreBtn = document.createElement('button');
     moreBtn.className = 'btn-secondary';
     moreBtn.style.fontSize = '0.9rem';
-    moreBtn.innerHTML = '🎲 Get 4 More Different Books';
+    moreBtn.innerHTML = `🎲 Get 4 More ${selectedGenres.length > 0 ? selectedGenres[0].toUpperCase() : ''} Books`;
     moreBtn.addEventListener('click', () => {
       moreBtn.disabled = true;
       moreBtn.innerHTML = '⏳ Finding 4 more books...';
@@ -198,6 +197,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = 'book-recommendation-card';
 
+    const genreBadges = book.genres ? book.genres.map(g => `<span class="badge" style="font-size:0.7rem; padding:0.15rem 0.45rem;">${g.toUpperCase()}</span>`).join(' ') : '';
+
     card.innerHTML = `
       <div class="book-cover-wrapper">
         <img src="${book.cover}" alt="${book.title}" class="book-cover-img" />
@@ -208,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="book-rating-price-bar">
           <span class="star-rating">★ ${book.rating} <small>(${book.reviewsCount})</small></span>
           <span class="book-price">${book.price}</span>
+          ${genreBadges}
         </div>
         <div class="book-why-match"><strong>Why it matches:</strong> ${book.matchReason}</div>
         <div class="book-actions-bar">
@@ -235,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const books = window.bookRecommender.getRecommendations(preferences, 4);
-    addBotMessage(`Based on your message: *"<sup>${escapeHTML(userQuery)}</sup>"*, here are 4 fresh matches!`);
+    addBotMessage(`Based on your prompt: *"<sup>${escapeHTML(userQuery)}</sup>"*, here are 4 strictly matched recommendations!`);
     
     const recsContainer = document.createElement('div');
     recsContainer.className = 'recommendations-wrapper';
@@ -250,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const moreBtn = document.createElement('button');
     moreBtn.className = 'btn-secondary';
     moreBtn.style.fontSize = '0.9rem';
-    moreBtn.innerHTML = '🎲 Get 4 More Different Books';
+    moreBtn.innerHTML = '🎲 Get 4 More Matching Books';
     moreBtn.addEventListener('click', () => {
       moreBtn.disabled = true;
       moreBtn.innerHTML = '⏳ Finding 4 more books...';
