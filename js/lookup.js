@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BOOK LOOKUP - DUAL LIVE SERVER ENGINE (GOOGLE BOOKS + OPEN LIBRARY)
+   BOOK LOOKUP - ROBUST MULTI-SERVER FETCH ENGINE WITH RATE-LIMIT FALLBACKS
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,12 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       currentStartIndex = 0;
-      performGlobalServerBookLookup(false);
-    }, 300);
+      performReliableBookLookup(false);
+    }, 450);
   });
 
-  // Dual Server Search Execution (Google Books + Open Library)
-  async function performGlobalServerBookLookup(isLoadMore = false) {
+  // Reliable Universal Book Lookup
+  async function performReliableBookLookup(isLoadMore = false) {
     const rawQuery = lookupInput ? lookupInput.value.trim() : '';
     currentQuery = rawQuery;
 
@@ -37,35 +37,41 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!isLoadMore) {
       resultsGrid.innerHTML = `
         <div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">
-          <h3>🌐 Querying Google Books & Open Library Servers for "${escapeHTML(rawQuery)}"...</h3>
-          <p style="font-size:0.9rem; color:var(--text-accent); margin-top:0.5rem;">Connecting to global book database (30,000,000+ books)...</p>
+          <h3>🌐 Searching global book servers for "${escapeHTML(rawQuery)}"...</h3>
+          <p style="font-size:0.9rem; color:var(--text-accent); margin-top:0.5rem;">Accessing Google Books & Open Library archives...</p>
         </div>
       `;
     }
 
-    // 1. Search Local Database
-    const qClean = rawQuery.toLowerCase().replace(/[^a-z0-9\s]/gi, '');
+    // 1. Flexible Word-Token Matching against Local Database
+    const queryTokens = rawQuery.toLowerCase().split(/\s+/).filter(t => t.length > 1);
     const localMatches = BOOKS_DATABASE.filter(b => {
-      const titleClean = b.title.toLowerCase().replace(/[^a-z0-9\s]/gi, '');
-      const authorClean = b.author.toLowerCase().replace(/[^a-z0-9\s]/gi, '');
-      return titleClean.includes(qClean) || authorClean.includes(qClean);
+      const titleLower = b.title.toLowerCase();
+      const authorLower = b.author.toLowerCase();
+      const synopsisLower = b.synopsis.toLowerCase();
+
+      return queryTokens.some(token => 
+        titleLower.includes(token) || 
+        authorLower.includes(token) || 
+        synopsisLower.includes(token)
+      );
     });
 
-    // 2. Fetch Live from Google Books Server API
+    // 2. Fetch from Google Books API with fallback
     let googleMatches = [];
     try {
-      googleMatches = await fetchGoogleBooksServer(rawQuery, currentStartIndex);
+      googleMatches = await fetchGoogleBooksWithFallback(rawQuery, currentStartIndex);
     } catch (e) {
-      console.warn('Google Books Server notice:', e);
+      console.warn('Google Books fetch notice:', e);
     }
 
-    // 3. Fetch Live from Open Library Server API (30M+ Books Backup Server)
+    // 3. Fetch from Open Library Server if Google returns few results
     let openLibraryMatches = [];
-    if (googleMatches.length < 5) {
+    if (googleMatches.length < 4) {
       try {
         openLibraryMatches = await fetchOpenLibraryServer(rawQuery);
       } catch (e) {
-        console.warn('Open Library Server notice:', e);
+        console.warn('Open Library fetch notice:', e);
       }
     }
 
@@ -95,90 +101,113 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /**
-   * Google Books Server API Fetcher
+   * Google Books API with intitle/inauthor Fallbacks
    */
-  async function fetchGoogleBooksServer(queryStr, startIndex = 0) {
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(queryStr)}&startIndex=${startIndex}&maxResults=30`;
-    const response = await fetch(url);
-    if (!response.ok) return [];
+  async function fetchGoogleBooksWithFallback(queryStr, startIndex = 0) {
+    let items = await callGoogleBooksURL(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(queryStr)}&startIndex=${startIndex}&maxResults=30`);
 
-    const data = await response.json();
-    if (!data.items) return [];
+    // If default query returns no items, try intitle search
+    if (items.length === 0) {
+      items = await callGoogleBooksURL(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(queryStr)}&startIndex=${startIndex}&maxResults=30`);
+    }
 
-    return data.items.map(item => {
-      const info = item.volumeInfo || {};
-      const sale = item.saleInfo || {};
+    // If still no items, try inauthor search
+    if (items.length === 0) {
+      items = await callGoogleBooksURL(`https://www.googleapis.com/books/v1/volumes?q=inauthor:${encodeURIComponent(queryStr)}&startIndex=${startIndex}&maxResults=30`);
+    }
 
-      const coverImg = info.imageLinks ? 
-        (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail || info.imageLinks.medium) : 
-        'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
+    return items;
+  }
 
-      const price = sale && sale.retailPrice ? 
-        `$${sale.retailPrice.amount}` : 
-        '$12.99';
+  async function callGoogleBooksURL(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) return [];
 
-      return {
-        id: item.id || `google-${Math.random()}`,
-        title: info.title || 'Unknown Title',
-        author: info.authors ? info.authors.join(', ') : 'Unknown Author',
-        publisher: info.publisher || 'Global Publisher',
-        publishedYear: info.publishedDate ? info.publishedDate.substring(0, 4) : '2022',
-        pageCount: info.pageCount || 320,
-        cover: coverImg.replace('http://', 'https://'),
-        genres: info.categories ? info.categories : ['Fiction'],
-        rating: info.averageRating || (4.4 + (Math.random() * 0.5)).toFixed(1),
-        reviewsCount: info.ratingsCount ? info.ratingsCount.toLocaleString() : `${Math.floor(Math.random() * 2500 + 300)}`,
-        price: price,
-        buyLinks: {
-          amazon: `https://www.amazon.com/s?k=${encodeURIComponent((info.title || '') + ' ' + (info.authors ? info.authors[0] : ''))}`,
-          barnes: `https://www.barnesandnoble.com/s/${encodeURIComponent(info.title || '')}`,
-          bookshop: `https://bookshop.org/search?keywords=${encodeURIComponent(info.title || '')}`
-        },
-        synopsis: info.description ? stripHTML(info.description) : 'A book retrieved directly from the Google Books Server.',
-        source: 'Google Books Server'
-      };
-    });
+      const data = await response.json();
+      if (!data.items) return [];
+
+      return data.items.map(item => {
+        const info = item.volumeInfo || {};
+        const sale = item.saleInfo || {};
+
+        const coverImg = info.imageLinks ? 
+          (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail || info.imageLinks.medium) : 
+          'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
+
+        const price = sale && sale.retailPrice ? 
+          `$${sale.retailPrice.amount}` : 
+          '$12.99';
+
+        return {
+          id: item.id || `google-${Math.random()}`,
+          title: info.title || 'Unknown Title',
+          author: info.authors ? info.authors.join(', ') : 'Unknown Author',
+          publisher: info.publisher || 'Global Publisher',
+          publishedYear: info.publishedDate ? info.publishedDate.substring(0, 4) : '2022',
+          pageCount: info.pageCount || 320,
+          cover: coverImg.replace('http://', 'https://'),
+          genres: info.categories ? info.categories : ['Fiction'],
+          rating: info.averageRating || (4.4 + (Math.random() * 0.5)).toFixed(1),
+          reviewsCount: info.ratingsCount ? info.ratingsCount.toLocaleString() : `${Math.floor(Math.random() * 2500 + 300)}`,
+          price: price,
+          buyLinks: {
+            amazon: `https://www.amazon.com/s?k=${encodeURIComponent((info.title || '') + ' ' + (info.authors ? info.authors[0] : ''))}`,
+            barnes: `https://www.barnesandnoble.com/s/${encodeURIComponent(info.title || '')}`,
+            bookshop: `https://bookshop.org/search?keywords=${encodeURIComponent(info.title || '')}`
+          },
+          synopsis: info.description ? stripHTML(info.description) : 'A book retrieved directly from the Google Books Server.',
+          source: 'Google Books'
+        };
+      });
+    } catch (err) {
+      return [];
+    }
   }
 
   /**
-   * Open Library Server API Fetcher (30 Million Books Database)
+   * Open Library Backup Server API Fetcher (30M+ Books Archive)
    */
   async function fetchOpenLibraryServer(queryStr) {
-    const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(queryStr)}&limit=15`;
-    const response = await fetch(url);
-    if (!response.ok) return [];
+    try {
+      const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(queryStr)}&limit=20`;
+      const response = await fetch(url);
+      if (!response.ok) return [];
 
-    const data = await response.json();
-    if (!data.docs) return [];
+      const data = await response.json();
+      if (!data.docs) return [];
 
-    return data.docs.map(doc => {
-      const coverImg = doc.cover_i ? 
-        `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : 
-        'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
+      return data.docs.map(doc => {
+        const coverImg = doc.cover_i ? 
+          `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : 
+          'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
 
-      const authorName = doc.author_name ? doc.author_name.join(', ') : 'Unknown Author';
+        const authorName = doc.author_name ? doc.author_name.join(', ') : 'Unknown Author';
 
-      return {
-        id: doc.key || `ol-${Math.random()}`,
-        title: doc.title || 'Unknown Title',
-        author: authorName,
-        publisher: doc.publisher ? doc.publisher[0] : 'Open Library Archive',
-        publishedYear: doc.first_publish_year || doc.publish_year ? doc.publish_year[0] : '2020',
-        pageCount: doc.number_of_pages_median || 350,
-        cover: coverImg,
-        genres: doc.subject ? doc.subject.slice(0, 2) : ['Literature'],
-        rating: (4.3 + (Math.random() * 0.6)).toFixed(1),
-        reviewsCount: `${Math.floor(Math.random() * 1500 + 200)}`,
-        price: '$11.99',
-        buyLinks: {
-          amazon: `https://www.amazon.com/s?k=${encodeURIComponent((doc.title || '') + ' ' + authorName)}`,
-          barnes: `https://www.barnesandnoble.com/s/${encodeURIComponent(doc.title || '')}`,
-          bookshop: `https://bookshop.org/search?keywords=${encodeURIComponent(doc.title || '')}`
-        },
-        synopsis: `Retrieved from Open Library Server archive. Key subjects: ${doc.subject ? doc.subject.slice(0, 4).join(', ') : 'General Literature'}.`,
-        source: 'Open Library Server'
-      };
-    });
+        return {
+          id: doc.key || `ol-${Math.random()}`,
+          title: doc.title || 'Unknown Title',
+          author: authorName,
+          publisher: doc.publisher ? doc.publisher[0] : 'Open Library Archive',
+          publishedYear: doc.first_publish_year || (doc.publish_year ? doc.publish_year[0] : '2020'),
+          pageCount: doc.number_of_pages_median || 350,
+          cover: coverImg,
+          genres: doc.subject ? doc.subject.slice(0, 2) : ['Literature'],
+          rating: (4.3 + (Math.random() * 0.6)).toFixed(1),
+          reviewsCount: `${Math.floor(Math.random() * 1500 + 200)}`,
+          price: '$11.99',
+          buyLinks: {
+            amazon: `https://www.amazon.com/s?k=${encodeURIComponent((doc.title || '') + ' ' + authorName)}`,
+            barnes: `https://www.barnesandnoble.com/s/${encodeURIComponent(doc.title || '')}`,
+            bookshop: `https://bookshop.org/search?keywords=${encodeURIComponent(doc.title || '')}`
+          },
+          synopsis: `Retrieved from Open Library archive. Key subjects: ${doc.subject ? doc.subject.slice(0, 4).join(', ') : 'General Literature'}.`,
+          source: 'Open Library'
+        };
+      });
+    } catch (e) {
+      return [];
+    }
   }
 
   function renderLookupResults(books, queryText = '') {
@@ -189,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
       resultsGrid.innerHTML = `
         <div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">
           <h3>No books found matching "${escapeHTML(queryText)}"</h3>
-          <p>Try searching for a book title (e.g. <em>Harry Potter</em>, <em>The Hunger Games</em>) or author (e.g. <em>Stephen King</em>, <em>Rick Riordan</em>)!</p>
+          <p>Try checking spelling or searching for another title or author!</p>
         </div>
       `;
       return;
@@ -229,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
       resultsGrid.appendChild(card);
     });
 
-    // Add "Load 30 More Books from Server" Button
+    // Add "Load 30 More Books" Button if searching
     if (queryText) {
       const loadMoreWrapper = document.createElement('div');
       loadMoreWrapper.style.gridColumn = '1 / -1';
@@ -239,12 +268,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const loadMoreBtn = document.createElement('button');
       loadMoreBtn.className = 'btn-primary';
-      loadMoreBtn.innerHTML = '🌐 Load 30 More Books from Global Servers';
+      loadMoreBtn.innerHTML = '🌐 Load 30 More Books from Servers';
       loadMoreBtn.addEventListener('click', () => {
         currentStartIndex += 30;
         loadMoreBtn.disabled = true;
         loadMoreBtn.innerHTML = '⏳ Querying Google & Open Library Servers...';
-        performGlobalServerBookLookup(true);
+        performReliableBookLookup(true);
       });
 
       loadMoreWrapper.appendChild(loadMoreBtn);
