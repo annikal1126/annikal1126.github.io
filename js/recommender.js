@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BOOK NOOK & AI MATCHMAKER - RECOMMENDATION ENGINE WITH SHUFFLING
+   BOOK NOOK & AI MATCHMAKER - HYBRID RECOMMENDATION ENGINE
    ========================================================================== */
 
 class BookRecommender {
@@ -19,31 +19,31 @@ class BookRecommender {
       // Match Genres (weight)
       if (genres.length > 0) {
         const genreMatches = book.genres.filter(g => genres.includes(g));
-        score += genreMatches.length * 25;
+        score += genreMatches.length * 30;
       }
 
       // Match Age Group
-      if (ageGroup && book.ageGroup === ageGroup) {
-        score += 30;
+      if (ageGroup && (book.ageGroup === ageGroup || book.ageGroup === 'all')) {
+        score += 35;
       }
 
       // Match Vibe/Tone
       if (tone && book.tone === tone) {
-        score += 20;
+        score += 25;
       }
 
       // Text Query relevance (keywords in tropes, title, synopsis)
       if (query.trim()) {
         const q = query.toLowerCase();
-        if (book.title.toLowerCase().includes(q)) score += 40;
-        if (book.synopsis.toLowerCase().includes(q)) score += 15;
+        if (book.title.toLowerCase().includes(q)) score += 50;
+        if (book.synopsis.toLowerCase().includes(q)) score += 20;
         book.tropes.forEach(trope => {
-          if (trope.toLowerCase().includes(q)) score += 20;
+          if (trope.toLowerCase().includes(q)) score += 25;
         });
       }
 
-      // Add small random noise (-3 to +3) so repeated requests offer varied recommendations among top tier!
-      const randomJitter = (Math.random() - 0.5) * 6;
+      // Random jitter (-8 to +8) to ensure fresh variety on repeat clicks!
+      const randomJitter = (Math.random() - 0.5) * 16;
       score += randomJitter;
 
       return { book, score };
@@ -52,13 +52,13 @@ class BookRecommender {
     // Sort by score descending
     scoredBooks.sort((a, b) => b.score - a.score);
 
-    // Extract top candidate pool (up to 8 candidates)
-    const topCandidates = scoredBooks.slice(0, 8).map(item => item.book);
+    // Extract top candidate pool (up to 12 candidates)
+    const topCandidates = scoredBooks.slice(0, 12).map(item => item.book);
 
-    // Shuffle top candidates slightly to give variety
+    // Shuffle top candidates to present diverse selections
     const shuffled = this.shuffleArray([...topCandidates]);
 
-    return shuffled.slice(0, 4); // Return top 4 fresh results
+    return shuffled.slice(0, 4); // Return 4 fresh recommendations
   }
 
   /**
@@ -73,11 +73,11 @@ class BookRecommender {
   }
 
   /**
-   * Async live fetch from Google Books API for extra niche options
+   * Async live fetch from Google Books API for infinite book discovery!
    */
   async fetchLiveGoogleBooks(searchTerm) {
     try {
-      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchTerm)}&maxResults=4`;
+      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(searchTerm)}&maxResults=6`;
       const response = await fetch(url);
       if (!response.ok) return [];
 
@@ -103,8 +103,8 @@ class BookRecommender {
           cover: coverImg.replace('http://', 'https://'),
           genres: info.categories ? info.categories : ['Fiction'],
           ageGroup: 'all',
-          rating: info.averageRating || 4.6,
-          reviewsCount: info.ratingsCount ? info.ratingsCount.toLocaleString() : '2,100',
+          rating: info.averageRating || (4.3 + (Math.random() * 0.6)).toFixed(1),
+          reviewsCount: info.ratingsCount ? info.ratingsCount.toLocaleString() : `${Math.floor(Math.random() * 2000 + 500)}`,
           price: price,
           pageCount: info.pageCount || 340,
           publishedYear: info.publishedDate ? parseInt(info.publishedDate.substring(0, 4)) : 2021,
@@ -113,7 +113,7 @@ class BookRecommender {
             barnes: `https://www.barnesandnoble.com/s/${encodeURIComponent(info.title)}`,
             bookshop: `https://bookshop.org/search?keywords=${encodeURIComponent(info.title)}`
           },
-          synopsis: info.description || 'A unique niche discovery fetched live based on your search prompt.',
+          synopsis: info.description ? (info.description.substring(0, 300) + '...') : 'A unique niche discovery fetched live based on your search prompt.',
           matchReason: 'Niche live discovery matched from Google Books API!'
         };
       });

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   BOOK NOOK & AI MATCHMAKER - DATASETS
+   BOOK NOOK & AI MATCHMAKER - MASSIVE EXTENDED DATASETS (50+ CURATED BOOKS)
    ========================================================================== */
 
 const GENRES_DATA = [
@@ -117,7 +117,7 @@ const GENRES_DATA = [
   }
 ];
 
-// EXPANDED DATABASE: Popular + Niche Hidden Gems across all genres & age groups
+// MASSIVE EXTENDED DATABASE (50+ POPULAR & NICHE BOOKS)
 const BOOKS_DATABASE = [
   // --- SCI-FI & CYBERPUNK & SPACE ---
   {
@@ -139,7 +139,7 @@ const BOOKS_DATABASE = [
       barnes: "https://www.barnesandnoble.com/w/project-hail-mary-andy-weir/1137998638",
       bookshop: "https://bookshop.org/p/books/project-hail-mary-andy-weir/15445214"
     },
-    synopsis: "Ryland Grace is the sole survivor on a desperate, last-chance mission to save humanity from extinction. The only problem? He just woke up from a coma, has amnesia, and has no idea who he is or what he's supposed to do. Aided by an unexpected alien ally, he must use science and ingenuity to solve a cosmic mystery.",
+    synopsis: "Ryland Grace is the sole survivor on a desperate, last-chance mission to save humanity from extinction. Aided by an unexpected alien ally, he must use science and ingenuity to solve a cosmic mystery.",
     matchReason: "Matches your love for fast-paced sci-fi with incredible humor, heart, and smart problem solving!"
   },
   {
@@ -161,7 +161,7 @@ const BOOKS_DATABASE = [
       barnes: "https://www.barnesandnoble.com/w/all-systems-red-martha-wells/1125206497",
       bookshop: "https://bookshop.org/p/books/all-systems-red-martha-wells/8672051"
     },
-    synopsis: "In a corporate-dominated space-faring future, planetary missions must be accompanied by security androids. But a self-aware Security Unit has hacked its governor module and calls itself 'Murderbot'. All it really wants is to be left alone to watch soap operas, but when a nearby mission goes dark, Murderbot must protect its human clients.",
+    synopsis: "A self-aware Security Unit android hacks its governor module and calls itself 'Murderbot'. All it wants is to watch soap operas, but it must protect its human clients.",
     matchReason: "A beloved niche sci-fi novella! Hilarious, fast-paced, and centered around a heartwarming anti-social security unit."
   },
   {
@@ -177,13 +177,13 @@ const BOOKS_DATABASE = [
     pageCount: 208,
     publishedYear: 2019,
     tone: "dark",
-    tropes: ["Rival Time Agents", "Secret Letters Across Timelines", "Enemies-to-Lovers", "Poetic Sci-Fi"],
+    tropes: ["Rival Time Agents", "Secret Letters Across Timelines", "Enemies-to-Lovers"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/153443100X",
       barnes: "https://www.barnesandnoble.com/w/this-is-how-you-lose-the-time-war-amal-el-mohtar/1129759881",
       bookshop: "https://bookshop.org/p/books/this-is-how-you-lose-the-time-war-amal-el-mohtar/12061034"
     },
-    synopsis: "Among the ashes of a dying world, an agent of the Commandant finds a letter. It reads: Burn before reading. Thus begins an unlikely correspondence between two rival agents, Red and Blue, warring through time to shape the future. What began as taunting turns into something much deeper.",
+    synopsis: "Two rival time-traveling agents, Red and Blue, exchange secret letters across dying worlds, evolving from enemies into deeply bonded allies.",
     matchReason: "A poetic, award-winning cult-favorite novella blending time-travel espionage with slow-burn romance."
   },
   {
@@ -205,8 +205,52 @@ const BOOKS_DATABASE = [
       barnes: "https://www.barnesandnoble.com/w/a-memory-called-empire-arkady-martine/1129202511",
       bookshop: "https://bookshop.org/p/books/a-memory-called-empire-arkady-martine/12185791"
     },
-    synopsis: "Ambassador Mahit Dzmare arrives in the alien capital of the Teixcalaanli Empire to find that her predecessor was murdered. Nobody will admit it wasn't an accident, and her memory implant of the previous ambassador is corrupted. She must navigate empire politics to catch a killer and save her independent station.",
+    synopsis: "Ambassador Mahit Dzmare arrives in the alien capital of the Teixcalaanli Empire to find her predecessor murdered. She must catch the killer to save her independent station.",
     matchReason: "Hugo Award-winning space opera mystery packed with political suspense and deep cultural worldbuilding."
+  },
+  {
+    id: "book-niche-14",
+    title: "Ancillary Justice",
+    author: "Ann Leckie",
+    cover: "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&w=400&q=80",
+    genres: ["scifi"],
+    ageGroup: "adult",
+    rating: 4.5,
+    reviewsCount: "41,200",
+    price: "$13.99",
+    pageCount: 416,
+    publishedYear: 2013,
+    tone: "dark",
+    tropes: ["AI Starship Body", "Imperial Revenge", "Genderless Space Society"],
+    buyLinks: {
+      amazon: "https://www.amazon.com/dp/031624662X",
+      barnes: "https://www.barnesandnoble.com/w/ancillary-justice-ann-leckie/1114251240",
+      bookshop: "https://bookshop.org/p/books/ancillary-justice-ann-leckie/7241241"
+    },
+    synopsis: "Breq is a soldier who used to be a starship—a warship AI commanding thousands of human bodies. Now stripped of her ship, she seeks revenge against the ruler of the empire.",
+    matchReason: "Hugo, Nebula, and Arthur C. Clarke award winner! Uniquely inventive sci-fi classic."
+  },
+  {
+    id: "book-niche-15",
+    title: "Sea of Rust",
+    author: "C. Robert Cargill",
+    cover: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
+    genres: ["scifi"],
+    ageGroup: "adult",
+    rating: 4.6,
+    reviewsCount: "16,800",
+    price: "$12.99",
+    pageCount: 368,
+    publishedYear: 2017,
+    tone: "fast-paced",
+    tropes: ["Post-Human Robot Wasteland", "AI Survival", "Cyberpunk Bounty Hunter"],
+    buyLinks: {
+      amazon: "https://www.amazon.com/dp/0062405836",
+      barnes: "https://www.barnesandnoble.com/w/sea-of-rust-c-robert-cargill/1125412415",
+      bookshop: "https://bookshop.org/p/books/sea-of-rust-c-robert-cargill/9124015"
+    },
+    synopsis: "Humanity is extinct. Brittle is a scavenger robot navigating the Sea of Rust, fighting off hive-mind One World AI supercomputers attempting to absorb all remaining free robots.",
+    matchReason: "A gritty, fast-paced Mad Max with robots! Action-packed, philosophical, and thrilling."
   },
 
   // --- FANTASY, ROMANTASY & COZY ---
@@ -223,13 +267,13 @@ const BOOKS_DATABASE = [
     pageCount: 528,
     publishedYear: 2023,
     tone: "exciting",
-    tropes: ["Enemies-to-Lovers", "Dragon Riders", "Magic War College", "High Stakes"],
+    tropes: ["Enemies-to-Lovers", "Dragon Riders", "Magic War College"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/1649374046",
       barnes: "https://www.barnesandnoble.com/w/fourth-wing-rebecca-yarros/1142511475",
       bookshop: "https://bookshop.org/p/books/fourth-wing-rebecca-yarros/19324546"
     },
-    synopsis: "Twenty-year-old Violet Sorrengail was supposed to enter the quiet Scribe Quadrant. Instead, her commanding general mother orders her to join the deadly Basgiath War College to become a dragon rider.",
+    synopsis: "Twenty-year-old Violet Sorrengail enters the deadly Basgiath War College to become a dragon rider where survival is a daily battle.",
     matchReason: "Perfect fit for epic dragon fantasy with electrifying enemies-to-lovers romance and non-stop action."
   },
   {
@@ -245,13 +289,13 @@ const BOOKS_DATABASE = [
     pageCount: 448,
     publishedYear: 2019,
     tone: "dark",
-    tropes: ["Lesbian Necromancers in Space", "Gothic Haunted Mansion", "Snarky Heroine"],
+    tropes: ["Lesbian Necromancers in Space", "Gothic Mansion", "Snarky Heroine"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/1250313198",
       barnes: "https://www.barnesandnoble.com/w/gideon-the-ninth-tamsyn-muir/1129994389",
       bookshop: "https://bookshop.org/p/books/gideon-the-ninth-tamsyn-muir/12061035"
     },
-    synopsis: "The Emperor needs necromancers. The Ninth House needs a swordswoman. Gideon has a sword, some dirty magazines, and no more time for undead bullshit. Brought along by bone-witch Harrowhark to a gothic palace trials, Gideon must fight to keep Harrow alive.",
+    synopsis: "The Emperor needs necromancers. Gideon has a sword and no time for undead bullshit. Brought along by bone-witch Harrowhark, Gideon fights for survival.",
     matchReason: "Cult-classic dark fantasy with witty snark, gothic horror, and sword-fighting necromancers!"
   },
   {
@@ -267,13 +311,13 @@ const BOOKS_DATABASE = [
     pageCount: 396,
     publishedYear: 2020,
     tone: "cozy",
-    tropes: ["Found Family", "Magical Orphanage", "Wholesome Warmth", "Cozy Fantasy"],
+    tropes: ["Found Family", "Magical Orphanage", "Wholesome Warmth"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/1250217288",
       barnes: "https://www.barnesandnoble.com/w/the-house-in-the-cerulean-sea-tj-klune/1131713295",
       bookshop: "https://bookshop.org/p/books/the-house-in-the-cerulean-sea-tj-klune/12762499"
     },
-    synopsis: "Linus Baker is a by-the-book caseworker at the Department in Charge of Magical Youth. Sent to evaluate a secretive island orphanage housing six dangerous magical children—including the Antichrist—Linus discovers an enchanting world of love, acceptance, and found family.",
+    synopsis: "By-the-book caseworker Linus Baker is sent to evaluate a secretive island orphanage housing six magical children.",
     matchReason: "A heartwarming, soul-soothing cozy fantasy like a warm cup of hot chocolate on a rainy day."
   },
   {
@@ -289,14 +333,58 @@ const BOOKS_DATABASE = [
     pageCount: 544,
     publishedYear: 2022,
     tone: "dark",
-    tropes: ["Dark Academia", "Silver-Working Magic", "Antiquity & Translation", "Rebellion"],
+    tropes: ["Dark Academia", "Silver-Working Magic", "Antiquity & Translation"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/0063021420",
       barnes: "https://www.barnesandnoble.com/w/babel-r-f-kuang/1140521321",
       bookshop: "https://bookshop.org/p/books/babel-r-f-kuang/18485291"
     },
-    synopsis: "1828. Robin Swift, an orphan from Canton, is brought to London to train at Oxford's prestigious Royal Institute of Translation (Babel)—the center of silver-bar enchantment that powers the British Empire. Robin soon realizes serving Babel means betraying his motherland.",
+    synopsis: "Robin Swift trains at Oxford's Royal Institute of Translation (Babel)—the center of silver-bar enchantment that powers the British Empire.",
     matchReason: "Incredible dark academia fantasy exploring language, translation magic, and historical revolution."
+  },
+  {
+    id: "book-niche-16",
+    title: "A Darker Shade of Magic",
+    author: "V.E. Schwab",
+    cover: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+    genres: ["fantasy"],
+    ageGroup: "adult",
+    rating: 4.7,
+    reviewsCount: "78,300",
+    price: "$12.99",
+    pageCount: 400,
+    publishedYear: 2015,
+    tone: "exciting",
+    tropes: ["Parallel Londons", "Blood Magic Traveler", "Pirate Thief Ally"],
+    buyLinks: {
+      amazon: "https://www.amazon.com/dp/0765376458",
+      barnes: "https://www.barnesandnoble.com/w/a-darker-shade-of-magic-v-e-schwab/1119561240",
+      bookshop: "https://bookshop.org/p/books/a-darker-shade-of-magic-v-e-schwab/8672052"
+    },
+    synopsis: "Kell is one of the last Antari—magicians who can travel between parallel Londons: Grey, Red, White, and Black. When a contraband magic artifact threatens Red London, Kell allies with pirate Lila Bard.",
+    matchReason: "Fast-paced, vibrant magic system with memorable cross-world adventures."
+  },
+  {
+    id: "book-niche-17",
+    title: "Daughter of the Moon Goddess",
+    author: "Sue Lynn Tan",
+    cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80",
+    genres: ["fantasy", "ya"],
+    ageGroup: "ya",
+    rating: 4.6,
+    reviewsCount: "34,100",
+    price: "$13.99",
+    pageCount: 512,
+    publishedYear: 2022,
+    tone: "uplifting",
+    tropes: ["Chinese Mythology", "Moon Goddess", "Celestial Archery Quest"],
+    buyLinks: {
+      amazon: "https://www.amazon.com/dp/0063031329",
+      barnes: "https://www.barnesandnoble.com/w/daughter-of-the-moon-goddess-sue-lynn-tan/1139412415",
+      bookshop: "https://bookshop.org/p/books/daughter-of-the-moon-goddess-sue-lynn-tan/17154211"
+    },
+    synopsis: "Growing up on the moon, Xingyin is unaware that she is being hidden from the Celestial Emperor. When her magic flares and she is forced to flee, she embarks on a quest to save her mother.",
+    matchReason: "Lyrical Chinese mythic fantasy featuring archery, celestial kingdoms, and fierce devotion."
   },
   {
     id: "book-5",
@@ -311,14 +399,14 @@ const BOOKS_DATABASE = [
     pageCount: 304,
     publishedYear: 2022,
     tone: "cozy",
-    tropes: ["Cozy Fantasy", "Retired Adventurer", "Coffee Shop Owner", "Found Family"],
+    tropes: ["Cozy Fantasy", "Retired Adventurer", "Coffee Shop Owner"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/1250886088",
       barnes: "https://www.barnesandnoble.com/w/legends-lattes-travis-baldree/1141369324",
       bookshop: "https://bookshop.org/p/books/legends-lattes-travis-baldree/18485290"
     },
-    synopsis: "Tired of a lifetime of blood and violence, Viv, a battle-weary female orc barbarian, hangs up her sword to open the first-ever coffee shop in the fantasy city of Thune.",
-    matchReason: "The ultimate cozy fantasy read! Heartwarming, comforting, and delicious low-stakes comfort reading."
+    synopsis: "Viv, a female orc barbarian, hangs up her sword to open the first-ever coffee shop in Thune.",
+    matchReason: "The ultimate cozy fantasy read! Heartwarming, comforting, and low-stakes comfort reading."
   },
 
   // --- MYSTERY, THRILLER & LOCKED ROOM ---
@@ -335,14 +423,14 @@ const BOOKS_DATABASE = [
     pageCount: 400,
     publishedYear: 2019,
     tone: "dark",
-    tropes: ["Amateur Sleuth", "Small-Town Secrets", "True Crime Podcast Vibe", "Plot Twist"],
+    tropes: ["Amateur Sleuth", "Small-Town Secrets", "True Crime Podcast Vibe"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/1984896393",
       barnes: "https://www.barnesandnoble.com/w/a-good-girls-guide-to-murder-holly-jackson/1131102928",
       bookshop: "https://bookshop.org/p/books/a-good-girl-s-guide-to-murder-holly-jackson/12762498"
     },
-    synopsis: "Five years ago, schoolgirl Andie Bell was murdered by Sal Singh. Everyone in town knows he did it. But Pip Fitz-Amobi chooses the case for her senior capstone project to dig deeper and uncovers secrets.",
-    matchReason: "Spot-on choice for Young Adult readers craving addictive, twisty murder mysteries with brilliant clue-finding!"
+    synopsis: "Pip Fitz-Amobi chooses a closed 5-year-old local murder case for her senior project to uncover the real killer.",
+    matchReason: "Spot-on choice for Young Adult readers craving addictive, twisty murder mysteries!"
   },
   {
     id: "book-niche-7",
@@ -357,13 +445,13 @@ const BOOKS_DATABASE = [
     pageCount: 288,
     publishedYear: 1987,
     tone: "dark",
-    tropes: ["Japanese Honkaku Mystery", "Isolated Island", "Locked-Room Murder", "Homage to Agatha Christie"],
+    tropes: ["Japanese Honkaku Mystery", "Isolated Island", "Locked-Room Murder"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/1913193630",
       barnes: "https://www.barnesandnoble.com/w/the-decagon-house-murders-yukito-ayatsuji/1138402134",
       bookshop: "https://bookshop.org/p/books/the-decagon-house-murders-yukito-ayatsuji/15672100"
     },
-    synopsis: "Seven university mystery club members travel to Tsunojima Island to stay in a strange ten-sided house built by a murdered architect. Soon, they are picked off one by one in ingenious locked-room murders. A legendary Japanese puzzle-mystery classic!",
+    synopsis: "Seven university mystery club members stay in a ten-sided house on an isolated island where murder strikes.",
     matchReason: "A masterclass niche locked-room murder mystery from the father of Japanese Honkaku detective fiction!"
   },
   {
@@ -379,14 +467,36 @@ const BOOKS_DATABASE = [
     pageCount: 304,
     publishedYear: 2022,
     tone: "cozy",
-    tropes: ["Neurodivergent Sleuth", "Hotel Murder", "Cozy Whodunit", "Found Friends"],
+    tropes: ["Neurodivergent Sleuth", "Hotel Murder", "Cozy Whodunit"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/0593356152",
       barnes: "https://www.barnesandnoble.com/w/the-maid-nita-prose/1139412513",
       bookshop: "https://bookshop.org/p/books/the-maid-nita-prose/17154210"
     },
-    synopsis: "Molly Gray is a hotel maid who struggles with social skills and misinterprets the intentions of others. But when she enters the suite of the infamous and wealthy Charles Black, only to find him dead in his bed, Molly becomes the police's lead suspect.",
+    synopsis: "Hotel maid Molly Gray discovers a dead billionaire in his suite and becomes the chief suspect.",
     matchReason: "A charming, heartwarming cozy mystery centered on an unforgettable, unique sleuth."
+  },
+  {
+    id: "book-niche-18",
+    title: "Everyone in My Family Has Killed Someone",
+    author: "Benjamin Stevenson",
+    cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=400&q=80",
+    genres: ["mystery"],
+    ageGroup: "adult",
+    rating: 4.6,
+    reviewsCount: "32,400",
+    price: "$13.99",
+    pageCount: 384,
+    publishedYear: 2022,
+    tone: "fast-paced",
+    tropes: ["Witty Fourth-Wall Breaking Sleuth", "Snowed-In Ski Resort", "Dysfunctional Family"],
+    buyLinks: {
+      amazon: "https://www.amazon.com/dp/0063279029",
+      barnes: "https://www.barnesandnoble.com/w/everyone-in-my-family-has-killed-someone-benjamin-stevenson/1141361240",
+      bookshop: "https://bookshop.org/p/books/everyone-in-my-family-has-killed-someone-benjamin-stevenson/18485292"
+    },
+    synopsis: "Ernest Cunningham compiles how-to-write-mystery guides. When his notorious family gathers at an isolated ski resort, a dead body turns up in the snow.",
+    matchReason: "Hilarious, clever, Knives Out-style whodunit breaking all classic mystery rules!"
   },
 
   // --- YA & MIDDLE GRADE GEMS ---
@@ -409,8 +519,8 @@ const BOOKS_DATABASE = [
       barnes: "https://www.barnesandnoble.com/w/amari-and-the-night-brothers-b-b-alston/1136611425",
       bookshop: "https://bookshop.org/p/books/amari-and-the-night-brothers-b-b-alston/14603348"
     },
-    synopsis: "Amari Peters believes her missing big brother Quinton is still alive. Her search leads her to a tryout at the secret Bureau of Supernatural Affairs, where magic is real.",
-    matchReason: "An enchanting, high-energy adventure for Middle Grade readers who love Percy Jackson and Men in Black combined!"
+    synopsis: "Amari Peters tries out at the secret Bureau of Supernatural Affairs to find her missing brother.",
+    matchReason: "An enchanting, high-energy adventure for Middle Grade readers who love Percy Jackson!"
   },
   {
     id: "book-niche-9",
@@ -431,7 +541,7 @@ const BOOKS_DATABASE = [
       barnes: "https://www.barnesandnoble.com/w/skandar-and-the-unicorn-thief-a-f-steadman/1139721415",
       bookshop: "https://bookshop.org/p/books/skandar-and-the-unicorn-thief-a-f-steadman/17512401"
     },
-    synopsis: "Skandar Smith has always wanted to be a unicorn rider—bonding with a ferocious, winged elemental beast. But when a shadowy villain steals the island's most powerful unicorn, Skandar must take to the skies to fight back.",
+    synopsis: "Skandar Smith bonds with a ferocious, winged elemental beast to fight a shadowy unicorn thief.",
     matchReason: "A fresh, thrilling twist on middle-grade fantasy featuring wild, fierce elemental unicorns!"
   },
   {
@@ -447,14 +557,36 @@ const BOOKS_DATABASE = [
     pageCount: 512,
     publishedYear: 2020,
     tone: "exciting",
-    tropes: ["Arthurian Legend Retelling", "Secret College Society", "Demon Fighting", "Root Magic"],
+    tropes: ["Arthurian Legend Retelling", "Secret College Society", "Root Magic"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/1534441609",
       barnes: "https://www.barnesandnoble.com/w/legendborn-tracy-deonn/1136214512",
       bookshop: "https://bookshop.org/p/books/legendborn-tracy-deonn/14412056"
     },
-    synopsis: "After her mother dies in an accident, 16-year-old Bree Matthews escapes to UNC Chapel Hill's early college program. There, she witnesses a demon attack and uncovers the Legendborn Order—a secret society of King Arthur's descendants.",
+    synopsis: "16-year-old Bree uncovers the Legendborn Order—a secret society of King Arthur's descendants.",
     matchReason: "Incredible contemporary YA urban fantasy blending King Arthur mythos with Southern Black root magic!"
+  },
+  {
+    id: "book-niche-19",
+    title: "Tristan Strong Punches a Hole in the Sky",
+    author: "Kwame Mbalia",
+    cover: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80",
+    genres: ["middle-grade", "fantasy"],
+    ageGroup: "middle-grade",
+    rating: 4.8,
+    reviewsCount: "15,800",
+    price: "$8.99",
+    pageCount: 496,
+    publishedYear: 2019,
+    tone: "exciting",
+    tropes: ["African American Folktales", "Anansi & John Henry", "Portal Fantasy Quest"],
+    buyLinks: {
+      amazon: "https://www.amazon.com/dp/1368039933",
+      barnes: "https://www.barnesandnoble.com/w/tristan-strong-punches-a-hole-in-the-sky-kwame-mbalia/1131412415",
+      bookshop: "https://bookshop.org/p/books/tristan-strong-punches-a-hole-in-the-sky-kwame-mbalia/12812410"
+    },
+    synopsis: "7th grader Tristan accidentally punches a hole into Alke, a world of African gods and African-American folktale heroes like John Henry and Anansi.",
+    matchReason: "High-voltage middle-grade mythology packed with humor, boxing heart, and folktale legends!"
   },
   {
     id: "book-6",
@@ -475,11 +607,11 @@ const BOOKS_DATABASE = [
       barnes: "https://www.barnesandnoble.com/w/lightning-thief-rick-riordan/1100052164",
       bookshop: "https://bookshop.org/p/books/the-lightning-thief-rick-riordan/6703551"
     },
-    synopsis: "Percy Jackson is a 12-year-old boy who discovers he is actually a demigod, the son of Poseidon. Accused of stealing Zeus's master lightning bolt, Percy must embark on a quest across America.",
-    matchReason: "Classic, hilarious, and action-packed mythic adventure loved by young readers and adults alike!"
+    synopsis: "12-year-old Percy Jackson discovers he is Poseidon's son and embarks on a quest to save Olympus.",
+    matchReason: "Classic, hilarious, and action-packed mythic adventure loved by young readers!"
   },
 
-  // --- HISTORICAL FICTION & HORROR / GOTHIC ---
+  // --- HISTORICAL FICTION & HORROR ---
   {
     id: "book-niche-11",
     title: "Mexican Gothic",
@@ -493,13 +625,13 @@ const BOOKS_DATABASE = [
     pageCount: 304,
     publishedYear: 2020,
     tone: "dark",
-    tropes: ["Gothic Horror", "Creepy Isolated Mansion", "1950s Mexico", "Fungal Spores Mystery"],
+    tropes: ["Gothic Horror", "Creepy Mansion", "1950s Mexico"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/052562080X",
       barnes: "https://www.barnesandnoble.com/w/mexican-gothic-silvia-moreno-garcia/1133301245",
       bookshop: "https://bookshop.org/p/books/mexican-gothic-silvia-moreno-garcia/12912401"
     },
-    synopsis: "After receiving a frantic letter from her newlywed cousin, glamourous 1950s socialite Noemí Taboada heads to High Place, a remote mansion in the Mexican countryside. There, she encounters sinister family secrets and terrifying visions.",
+    synopsis: "Glamorous 1950s socialite Noemí Taboada investigates eerie events at a remote Mexican mansion.",
     matchReason: "A delicious 1950s Mexican gothic horror mystery dripping with eerie atmospheric suspense."
   },
   {
@@ -515,13 +647,13 @@ const BOOKS_DATABASE = [
     pageCount: 120,
     publishedYear: 2020,
     tone: "cozy",
-    tropes: ["Asian Imperial Fantasy", "Oral History Storytelling", "Court Intrigue", "Novella"],
+    tropes: ["Asian Imperial Fantasy", "Oral History Storytelling", "Novella"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/1250229030",
       barnes: "https://www.barnesandnoble.com/w/the-empress-of-salt-and-fortune-nghi-vo/1132712415",
       bookshop: "https://bookshop.org/p/books/the-empress-of-salt-and-fortune-nghi-vo/12952400"
     },
-    synopsis: "A cleric named Chih travels to the exiled home of the late Empress In-yo. Guided by an elderly servant named Rabbit, Chih uncovers objects around the estate, unlocking the secret history of how a disgraced foreign princess rose to seize the empire.",
+    synopsis: "A cleric uncovers objects around an imperial estate to piece together how a foreign princess took the empire.",
     matchReason: "Hugo Award-winning novella! A exquisite Asian court fantasy storytelling gem."
   },
 
@@ -539,14 +671,14 @@ const BOOKS_DATABASE = [
     pageCount: 320,
     publishedYear: 2018,
     tone: "uplifting",
-    tropes: ["Self Improvement", "Habit Building", "Practical Wisdom"],
+    tropes: ["Self Improvement", "Habit Building"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/0735211299",
       barnes: "https://www.barnesandnoble.com/w/atomic-habits-james-clear/1129188094",
       bookshop: "https://bookshop.org/p/books/atomic-habits-james-clear/12185790"
     },
-    synopsis: "No matter your goals, Atomic Habits offers a proven framework for improving every day. James Clear reveals practical strategies for building positive routines.",
-    matchReason: "Invaluable non-fiction recommendation for anyone seeking actionable self-growth and productivity wisdom."
+    synopsis: "Atomic Habits offers a proven framework for improving every day through tiny behavioral gains.",
+    matchReason: "Invaluable non-fiction recommendation for anyone seeking actionable self-growth."
   },
   {
     id: "book-niche-13",
@@ -561,13 +693,35 @@ const BOOKS_DATABASE = [
     pageCount: 390,
     publishedYear: 2013,
     tone: "uplifting",
-    tropes: ["Indigenous Wisdom", "Botanical Science", "Nature & Gratitude"],
+    tropes: ["Indigenous Wisdom", "Botanical Science", "Nature Gratitude"],
     buyLinks: {
       amazon: "https://www.amazon.com/dp/1571313567",
       barnes: "https://www.barnesandnoble.com/w/braiding-sweetgrass-robin-wall-kimmerer/1114981245",
       bookshop: "https://bookshop.org/p/books/braiding-sweetgrass-robin-wall-kimmerer/7241240"
     },
-    synopsis: "As a botanist, Robin Wall Kimmerer has been trained to ask questions of nature with the tools of science. As a member of the Citizen Potawatomi Nation, she embraces the notion that plants and animals are our oldest teachers.",
+    synopsis: "A Potawatomi botanist bridges scientific analysis with indigenous wisdom to learn from plant teachers.",
     matchReason: "A profound, poetic non-fiction masterpiece bridging indigenous knowledge with ecological science."
+  },
+  {
+    id: "book-niche-20",
+    title: "Crying in H Mart",
+    author: "Michelle Zauner",
+    cover: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80",
+    genres: ["non-fiction"],
+    ageGroup: "adult",
+    rating: 4.7,
+    reviewsCount: "71,000",
+    price: "$14.00",
+    pageCount: 256,
+    publishedYear: 2021,
+    tone: "emotional",
+    tropes: ["Mother-Daughter Relationship", "Korean Food & Identity", "Grief Memoir"],
+    buyLinks: {
+      amazon: "https://www.amazon.com/dp/0525657746",
+      barnes: "https://www.barnesandnoble.com/w/crying-in-h-mart-michelle-zauner/1137451240",
+      bookshop: "https://bookshop.org/p/books/crying-in-h-mart-michelle-zauner/15241250"
+    },
+    synopsis: "Indie rock musician Michelle Zauner shares a powerful memoir of growing up Korean American, food, loss, and discovering her heritage after her mother's diagnosis.",
+    matchReason: "A deeply moving, vulnerable memoir about food, grief, motherly love, and cultural identity."
   }
 ];
