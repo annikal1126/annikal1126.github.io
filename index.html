@@ -4,12 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Book Nook & AI Matchmaker - Discover Your Next Favorite Book</title>
-  <meta name="description" content="Explore rich book genres, descriptions, and chat with an intelligent AI book matchmaker tailored to your age range, favorite genres, tropes, and reading style." />
+  <meta name="description" content="Explore rich book genres, descriptions, chat with an intelligent AI book matchmaker, and look up authors, overviews, ratings, prices, and buy links for any book." />
 
   <!-- Fonts & Stylesheets -->
   <link rel="stylesheet" href="./styles/main.css" />
   <link rel="stylesheet" href="./styles/genres.css" />
   <link rel="stylesheet" href="./styles/chat.css" />
+  <link rel="stylesheet" href="./styles/lookup.css" />
 </head>
 <body>
 
@@ -30,6 +31,9 @@
         </button>
         <button class="tab-btn" data-tab="chat">
           <span>✨</span> AI Matchmaker Chat
+        </button>
+        <button class="tab-btn" data-tab="lookup">
+          <span>🔍</span> Book Lookup
         </button>
       </nav>
 
@@ -161,6 +165,27 @@
       </div>
     </section>
 
+    <!-- TAB 3: BOOK LOOKUP & INSPECTOR -->
+    <section id="tab-lookup" class="tab-pane">
+      <div class="lookup-header">
+        <h1 class="lookup-title">Instant <span class="gradient-text">Book Lookup</span></h1>
+        <p class="lookup-subtitle">Search for any book by title or author to inspect overviews, authors, star ratings, prices, and buy links!</p>
+      </div>
+
+      <!-- Search Input -->
+      <div class="lookup-search-container">
+        <div class="lookup-search-bar">
+          <span class="lookup-search-icon">🔍</span>
+          <input type="text" id="lookup-search-input" class="lookup-search-input" placeholder="Type any book title or author (e.g. Project Hail Mary, Rick Riordan, Fourth Wing)..." />
+        </div>
+      </div>
+
+      <!-- Results Grid -->
+      <div class="lookup-results-grid" id="lookup-results-grid">
+        <!-- Rendered dynamically via js/lookup.js -->
+      </div>
+    </section>
+
   </main>
 
   <!-- GENRE DETAILS MODAL -->
@@ -178,7 +203,7 @@
     <div class="modal-container" style="max-width: 850px;">
       <button id="overview-modal-close-btn" class="modal-close-btn">&times;</button>
       <div id="overview-modal-content">
-        <!-- Rendered dynamically via js/chat.js -->
+        <!-- Rendered dynamically -->
       </div>
     </div>
   </div>
@@ -190,6 +215,7 @@
       <div class="footer-links">
         <a href="#" onclick="window.switchAppTab('genres'); return false;">Genre Catalog</a>
         <a href="#" onclick="window.switchAppTab('chat'); return false;">AI Matchmaker Chat</a>
+        <a href="#" onclick="window.switchAppTab('lookup'); return false;">Book Lookup</a>
       </div>
     </div>
   </footer>
@@ -199,6 +225,7 @@
   <script src="./js/recommender.js"></script>
   <script src="./js/genres.js"></script>
   <script src="./js/chat.js"></script>
+  <script src="./js/lookup.js"></script>
   <script src="./js/app.js"></script>
 </body>
 </html>
